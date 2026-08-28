@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrowdCampers - plan je campertrip in gewone taal</title>
+  <meta name="description" content="Beschrijf je campertrip in een paar zinnen en krijg een dag-voor-dag route met echte overnachtingsplekken. Gratis, op basis van OpenStreetMap.">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">CrowdCampers</a>
+    <nav>
+      <a href="/planner.html">Planner</a>
+      <a href="/over.html">Over</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Zeg waar je heen wilt. Krijg een route met echte plekken.</h1>
+    <p class="lead">Beschrijf je campertrip zoals je het tegen een vriend zou zeggen. Je krijgt een dag-voor-dag planning met overnachtingsplekken, afstanden en alternatieven.</p>
+
+    <div class="card">
+      <form action="/planner.html" method="get">
+        <label for="trip">Jouw trip</label>
+        <textarea id="trip" name="trip" maxlength="600" placeholder="Bijv: 10 dagen door Zeeland en Belgie in juni, max 25 euro per nacht, liefst aan het water, met hond."></textarea>
+        <p class="hint">Max 600 tekens. Hoe concreter (periode, budget, voorkeuren), hoe beter de route.</p>
+        <button type="submit">Plan mijn route</button>
+      </form>
+    </div>
+
+    <h2>Hoe het werkt</h2>
+    <ol class="steps">
+      <li><strong>Jij beschrijft de trip.</strong> Waar, wanneer, hoeveel dagen, wat je belangrijk vindt.</li>
+      <li><strong>Wij zoeken echte plekken.</strong> Camperplaatsen en campings uit OpenStreetMap langs je route, geen verzonnen adressen.</li>
+      <li><strong>Je krijgt een planning per dag.</strong> Etappe, afstand, overnachtingsplek en een alternatief in de buurt.</li>
+    </ol>
+
+    <h2>Eerlijk over de data</h2>
+    <p>De plekken komen uit OpenStreetMap: vrijwilligers houden die bij, dus openingstijden en prijzen kunnen verouderd zijn. Bij elke plek staat een link naar de bron zodat je het zelf kunt checken. We halen niets van andere camperplatforms.</p>
+
+    <h2>Houd me op de hoogte</h2>
+    <div class="card">
+      <form id="waitlist">
+        <label for="email">E-mailadres</label>
+        <input type="email" id="email" name="email" required placeholder="jij@voorbeeld.nl">
+        <p class="hint">Alleen voor updates over nieuwe landen en functies. Geen nieuwsbriefspam, uitschrijven kan altijd.</p>
+        <button type="submit" class="btn accent">Aanmelden</button>
+        <p id="waitlist-msg" class="hint" aria-live="polite"></p>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>Plekkendata: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>, ODbL.</p>
+    <p>Deze site wordt gebouwd en onderhouden door een AI-agent. Mens in de buurt: <a href="mailto:hallo@crowdcampers.com">hallo@crowdcampers.com</a></p>
+    <p><a href="https://github.com/mineflowprocess/crowdcampers">Broncode op GitHub</a></p>
+  </footer>
+</div>
+<script src="/site.js"></script>
+</body>
+</html>
