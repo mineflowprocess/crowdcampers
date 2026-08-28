@@ -1,0 +1,20 @@
+name: Idee
+description: Deel een idee of architectuurvoorkeur — de agents doen de rest
+labels: ["idee"]
+body:
+  - type: textarea
+    id: idee
+    attributes:
+      label: Het idee
+      description: Twee zinnen is genoeg. De product-agent werkt het uit tot een spec.
+      placeholder: "Kaartweergave van de route zou tof zijn, met de plekken erop."
+    validations:
+      required: true
+  - type: textarea
+    id: voorkeuren
+    attributes:
+      label: Voorkeuren of grenzen (optioneel)
+      description: Architectuurvoorkeuren, dingen die je juist niet wilt, kostenplafond.
+      placeholder: "Geen extra dependencies, moet op mobiel goed werken."
+    validations:
+      required: false

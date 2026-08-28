@@ -1,0 +1,45 @@
+name: Weekly data run
+
+on:
+  schedule:
+    - cron: "30 2 * * 3" # Wednesday 02:30 UTC — OSM camper data doesn't change daily
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  data-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Claude Code — data pipeline
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Weekly data run. Use the data-pipeline skill.
+
+            1. If data/pipeline/ scripts don't exist yet, generate them per the skill, then continue.
+            2. Run extract → transform → validate → publish for all configured countries.
+            3. If validation passes and processed data changed: open a PR titled
+               "data: weekly refresh {date}" with the count summary in the description.
+            4. If anything fails: follow the self-healing rules in the skill.
+               Open an issue with your diagnosis. Do not force a publish.
+
+            Cost discipline: let the Python scripts do the heavy lifting. Never read
+            raw or processed data files into your own context beyond small samples
+            needed for debugging.
+
+            Stay within scope: only touch data/. Small, reviewable changes.
+          claude_args: |
+            --allowedTools "Bash(python*),Bash(pip*),Bash(git*),Bash(gh*),Read,Write,Edit,Glob,Grep"
+            --max-turns 60

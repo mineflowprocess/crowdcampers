@@ -1,0 +1,46 @@
+name: Product agent
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  spec:
+    if: github.event.label.name == 'idee'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Claude Code — idea to spec
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Issue #${{ github.event.issue.number }} was labeled "idee" — the human shared
+            an idea. Turn it into a build-ready spec. Read CLAUDE.md and relevant
+            skills first.
+
+            Write ONE comment on the issue containing:
+            - Wat: the idea restated as a concrete, minimal first version (cut scope
+              aggressively — smallest thing that tests the idea)
+            - Hoe: which files/parts change, which skill applies
+            - Kosten: one honest line on token/infra cost impact (build + run)
+            - Buiten scope: what you deliberately left out and why
+
+            Then:
+            - If the spec touches ONLY Class 1-3 territory (see reviewer skill):
+              replace label "idee" with "bouwklaar".
+            - If it touches Class 4 territory (planner protections, workflows,
+              CLAUDE.md, spend behavior): replace "idee" with "human" and say
+              what needs his decision.
+
+            If the idea is too vague to spec, ask the human max 2 sharp questions in
+            the comment and leave the "idee" label on.
+          claude_args: |
+            --allowedTools "Bash(gh*),Read,Glob,Grep"
+            --max-turns 20

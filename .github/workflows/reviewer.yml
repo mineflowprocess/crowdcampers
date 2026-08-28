@@ -1,0 +1,38 @@
+name: Reviewer agent
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code — review per risk ladder
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # PRs here are usually opened by our own agent runs; allow those bot
+          # actors explicitly so this workflow can review them.
+          allowed_bots: "github-actions[bot],claude[bot]"
+          prompt: |
+            Review PR #${{ github.event.pull_request.number }} using the reviewer skill.
+
+            1. Determine the risk class from the changed files (highest class wins).
+            2. Apply that class's checklist and action exactly as written.
+            3. Class 4: comment your analysis, add label "human", and stop. Never merge.
+
+            Keep it brief — a review is a classification plus a checklist, not an essay.
+          claude_args: |
+            --allowedTools "Bash(git*),Bash(gh*),Read,Glob,Grep"
+            --max-turns 25

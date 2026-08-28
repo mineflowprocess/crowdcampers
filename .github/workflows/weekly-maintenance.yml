@@ -1,0 +1,58 @@
+name: Weekly maintenance
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Monday 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Claude Code — maintenance
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Weekly maintenance run. Work through this checklist:
+
+            1. Check all internal links in site/ resolve; fix broken ones (site-builder skill).
+            2. Review open GitHub issues labeled "agent": for each, either fix it in a
+               small PR, or comment with why it needs human input and label it "human".
+            3. Verify OSM attribution is present everywhere spot data is shown.
+            4. Check data/processed/index.json freshness — if the newest data is older
+               than 3 days, diagnose the nightly workflow and open an issue with findings.
+
+            One PR per concern. If everything is healthy, do nothing and finish —
+            no cosmetic changes for the sake of activity.
+          claude_args: |
+            --allowedTools "Bash(git*),Bash(gh*),Bash(python*),Read,Write,Edit,Glob,Grep"
+            --max-turns 40
+  content:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.event.schedule == '0 6 * * 1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Monthly content run (first Monday only)
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            First check: is today the FIRST Monday of the month? (Run `date` to verify.)
+            If not, stop immediately — this job only does work monthly.
+
+            If yes: run the monthly content routine per the content-writer skill.
+            Create or refresh at most 3 region pages, one PR for the batch.
+          claude_args: |
+            --allowedTools "Bash(date),Bash(git*),Bash(gh*),Read,Write,Edit,Glob,Grep"
+            --max-turns 50

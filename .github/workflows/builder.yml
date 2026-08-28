@@ -1,0 +1,43 @@
+name: Builder agent
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  build:
+    if: github.event.label.name == 'bouwklaar'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Claude Code — build the spec
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Issue #${{ github.event.issue.number }} is labeled "bouwklaar" and has a
+            spec comment from the product agent. Build exactly that spec — not more.
+
+            Rules of engagement:
+            - Read CLAUDE.md and the skill(s) named in the spec before writing code.
+            - One PR, branch name `feature/issue-${{ github.event.issue.number }}`,
+              linked to the issue with "Closes #${{ github.event.issue.number }}".
+            - Stay inside the spec's file scope. If you discover the spec is wrong
+              or needs Class 4 changes: stop, comment on the issue, label "human".
+            - Run the relevant checks (validate.py / link check) before opening the PR.
+
+            The reviewer agent takes it from there.
+          claude_args: |
+            --allowedTools "Bash(python*),Bash(pip*),Bash(git*),Bash(gh*),Read,Write,Edit,Glob,Grep"
+            --max-turns 60
