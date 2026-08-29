@@ -66,7 +66,7 @@
 
     var ctrl = new AbortController();
     var timer = setTimeout(function () { ctrl.abort(); }, 60000);
-    fetch("/api/plan", {
+    fetch(window.PLANNER_API || "/api/plan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ trip: text, turnstile: turnstileToken() }),
