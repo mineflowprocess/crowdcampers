@@ -12,7 +12,8 @@ permissions:
 
 jobs:
   build:
-    if: github.event.label.name == 'bouwklaar'
+    # Only the owner or our own bots may trigger a run (labels can be set by any collaborator).
+    if: github.event.label.name == 'bouwklaar' && contains(fromJSON('["mineflowprocess","claude[bot]","github-actions[bot]"]'), github.event.sender.login)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
