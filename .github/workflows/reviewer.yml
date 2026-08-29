@@ -22,7 +22,7 @@ jobs:
       - name: Run Claude Code — review per risk ladder
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # PRs here are usually opened by our own agent runs; allow those bot
           # actors explicitly so this workflow can review them.
           allowed_bots: "github-actions[bot],claude[bot]"
