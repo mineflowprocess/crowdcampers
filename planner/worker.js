@@ -1,7 +1,7 @@
 // CrowdCampers planner API: Cloudflare Worker serving POST /api/plan.
 //
 // Request order (every step is a launch requirement, see .claude/skills/planner-api):
-//   kill switch -> Turnstile -> input caps -> rate limit -> cache -> Claude -> cache store
+//   kill switch -> Turnstile -> input caps -> cache -> rate limit -> Claude -> cache store
 //
 // Env (wrangler.toml vars / secrets):
 //   PLANNER_ENABLED   "true" to serve; anything else -> 503 (kill switch)
@@ -55,8 +55,7 @@ async function plan(request, env, ctx) {
   if (trip.length > MAX_INPUT_CHARS) return json({ message: MSG.tooLong }, 400);
   if (trip.length < 10) return json({ message: MSG.tooShort }, 400);
 
-  if (!(await withinRateLimit(ip, env))) return json({ message: MSG.rate }, 429);
-
+  // Cache before rate limit: a cached answer costs nothing, so it should not burn quota.
   const key = await cacheKey(trip);
   const cache = caches.default;
   const cached = await cache.match(key);
@@ -64,6 +63,8 @@ async function plan(request, env, ctx) {
     log({ event: "plan", cache: "hit", ms: Date.now() - started });
     return cached;
   }
+
+  if (!(await withinRateLimit(ip, env))) return json({ message: MSG.rate }, 429);
 
   const [prompt, index] = await Promise.all([loadText(env, "/planner/PLANNER_PROMPT.md"), loadJson(env, "/data/processed/index.json")]);
   const spots = await selectSpots(trip, index, env);
