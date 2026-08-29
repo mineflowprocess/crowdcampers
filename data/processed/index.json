@@ -1,0 +1,25 @@
+{
+ "countries": {
+  "NL": {
+   "count": 2288,
+   "updated": "2026-08-28",
+   "regions": {
+    "Drenthe": 202,
+    "Flevoland": 39,
+    "Fryslân": 214,
+    "Gelderland": 375,
+    "Groningen": 107,
+    "Limburg": 141,
+    "Noord-Brabant": 229,
+    "Noord-Holland": 201,
+    "Overijssel": 274,
+    "Utrecht": 66,
+    "Zeeland": 308,
+    "Zuid-Holland": 132
+   }
+  }
+ },
+ "license": "ODbL",
+ "attribution": "© OpenStreetMap contributors",
+ "schema_version": 1
+}
