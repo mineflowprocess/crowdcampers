@@ -10,6 +10,7 @@
 //   PLANNER_MODEL     default claude-haiku-4-5 (cheapest model that returns reliable JSON)
 //   DATA_BASE_URL     where data/processed/ and planner/PLANNER_PROMPT.md are served from
 //   RATE_KV           KV namespace binding for per-IP counters
+//   ALLOWED_ORIGINS   comma-separated origins allowed to call this API (CORS)
 
 const MAX_INPUT_CHARS = 600;
 const MAX_SPOTS = 150;
@@ -31,13 +32,17 @@ const MSG = {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (url.pathname !== "/api/plan") return json({ message: "Not found" }, 404);
-    if (request.method !== "POST") return json({ message: "Method not allowed" }, 405);
+    const cors = corsHeaders(request, env);
+    if (url.pathname !== "/api/plan") return json({ message: "Not found" }, 404, cors);
+    if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+    if (request.method !== "POST") return json({ message: "Method not allowed" }, 405, cors);
     try {
-      return await plan(request, env, ctx);
+      const res = await plan(request, env, ctx);
+      Object.entries(cors).forEach(([k, v]) => res.headers.set(k, v));
+      return res;
     } catch (e) {
       console.log(JSON.stringify({ event: "error", error: String(e && e.message || e) }));
-      return json({ message: MSG.upstream }, 502);
+      return json({ message: MSG.upstream }, 502, cors);
     }
   },
 };
@@ -214,6 +219,20 @@ function parsePlan(text) {
 }
 
 // --- helpers -------------------------------------------------------------
+
+// The site lives on Pages (another origin) until the Worker gets a route on crowdcampers.com.
+function corsHeaders(request, env) {
+  const origin = request.headers.get("Origin") || "";
+  const allowed = (env.ALLOWED_ORIGINS || "").split(",").map((s) => s.trim());
+  if (!allowed.includes(origin)) return {};
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+    "Vary": "Origin",
+  };
+}
 
 function json(obj, status = 200, headers = {}) {
   return new Response(JSON.stringify(obj), {

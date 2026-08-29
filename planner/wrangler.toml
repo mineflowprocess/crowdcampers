@@ -2,12 +2,14 @@ name = "crowdcampers-planner"
 main = "worker.js"
 compatibility_date = "2026-08-01"
 
-routes = [{ pattern = "crowdcampers.com/api/*", zone_name = "crowdcampers.com" }]
+# Served on workers.dev for now; add a crowdcampers.com/api/* route once the zone is on Cloudflare.
+workers_dev = true
 
 [vars]
 PLANNER_ENABLED = "true"
 PLANNER_MODEL = "claude-haiku-4-5"
 DATA_BASE_URL = "https://raw.githubusercontent.com/mineflowprocess/crowdcampers/main"
+ALLOWED_ORIGINS = "https://crowdcampers.pages.dev,https://crowdcampers.com"
 
 # Secrets (set with `wrangler secret put`): TURNSTILE_SECRET, ANTHROPIC_API_KEY
 # KV: create with `wrangler kv namespace create RATE_KV` and paste the id below.
