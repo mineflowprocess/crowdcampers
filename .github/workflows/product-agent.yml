@@ -11,7 +11,8 @@ permissions:
 
 jobs:
   spec:
-    if: github.event.label.name == 'idee'
+    # Only the owner or our own bots may trigger a run.
+    if: github.event.label.name == 'idee' && contains(fromJSON('["mineflowprocess","claude[bot]","github-actions[bot]"]'), github.event.sender.login)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
